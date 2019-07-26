@@ -45,5 +45,4 @@ Puppet::Functions.create_function(:ensure_at_least, Puppet::Functions::InternalF
       minversion
     end
   end
-
 end
