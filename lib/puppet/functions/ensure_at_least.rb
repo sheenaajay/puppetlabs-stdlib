@@ -43,15 +43,15 @@ Puppet::Functions.create_function(:ensure_at_least) do
       "and package_name = '#{package}'",
       ("and provider = '#{provider}'" unless provider.nil?),
       '}',
-    ].compact.join(" ")
+    ].compact.join(' ')
 
     queryresult = call_function('puppetdb_query', query)
     if queryresult.length > 1
       if provider.nil?
-        #Assume first PDB query result is for the default provider
+        # Assume first PDB query result is for the default provider
         provider = queryresult.map { |elem| elem['provider'] }.first
       end
-      #Assume last PDB query result is always the highest version
+      # Assume last PDB query result is always the highest version
       result = queryresult.select { |elem| elem['provider'] == provider }.last
     else
       result = queryresult.first
