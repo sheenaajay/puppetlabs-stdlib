@@ -166,8 +166,10 @@ Puppet::Functions.create_function(:'stdlib::ensure_at_least') do
               end
             end
             # Use the default provided we didn't find a version-specific match
-            if found == false && !def_provider.nil?
-              provider = def_provider
+            unless found
+              unless def_provider.nil?
+                provider = def_provider
+              end
             end
           else
             # The provider is generic for this OS
@@ -220,10 +222,10 @@ Puppet::Functions.create_function(:'stdlib::ensure_at_least') do
       return installed
     else
       retversion = if installversion.nil?
-        minversion
-      else
-        installversion
-      end
+                     minversion
+                   else
+                     installversion
+                   end
       call_function('notice', "#{msgprefix}#{" Provider #{provider} |" unless provider.nil?} Returned version to install: #{retversion}, reason: minimum version #{minversion} not present")
       return retversion
     end
