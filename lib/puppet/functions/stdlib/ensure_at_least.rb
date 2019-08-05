@@ -146,35 +146,32 @@ Puppet::Functions.create_function(:'stdlib::ensure_at_least') do
           blnos = (data['type'] == 'operatingsystem' && os == facts['operatingsystem'].downcase)
           blnosfamily = (data['type'] == 'osfamily' && os == facts['osfamily'].downcase)
           next unless blnos || blnosfamily
+
           # Found a def_providers match for this OS/OS Family
           call_function('notice', "#{msgprefix} Auto-selecting for #{data['type']} #{os}")
           # Check if this OS (family) uses a different provider dependent on the specific OS version
-          if data['filter']
-            # The provider to select is dependent on the specific OS version
-            found = false
-            def_provider = nil
-            # Iterate through each OS version-specific provider to find a match
-            data['provider'].each do |item|
-              if item['version'].include? facts[data['fact']]
-                # Found a match, use this one and exit the loop
-                found = true
-                provider = item['provider']
-                break
-              elsif item['version'].include? 'default'
-                # Found a default option, store it for later use
-                def_provider = item['provider']
-              end
-            end
-            # Use the default provided we didn't find a version-specific match
-            unless found
-              unless def_provider.nil?
-                provider = def_provider
-              end
-            end
-          else
+          unless data['filter'] == true
             # The provider is generic for this OS
             provider = data['provider']
+            break
           end
+          # The provider to select is dependent on the specific OS version
+          found = false
+          def_provider = nil
+          # Iterate through each OS version-specific provider to find a match
+          data['provider'].each do |item|
+            if item['version'].include? facts[data['fact']]
+              # Found a match, use this one and exit the loop
+              found = true
+              provider = item['provider']
+              break
+            elsif item['version'].include? 'default'
+              # Found a default option, store it for later use
+              def_provider = item['provider']
+            end
+          end
+          # Use the default provided we didn't find a version-specific match
+          provider = def_provider unless found && def_provider.nil?
           # No need to parse the rest of the def_providers hash as we already found a match
           break
         end
